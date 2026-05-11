@@ -81,7 +81,7 @@ quizDataRaw = [
         "correctIndex": 0
     },
     {
-        "text": "ビルトインAdministratorアカウントは瀬部手の操作が管理者権限で実行できるため、WindowsVISTA以降のOSでは、「　　　　　」されています。",
+        "text": "ビルトインAdministratorアカウントは全ての操作が管理者権限で実行できるため、WindowsVISTA以降のOSでは、「　　　　　」されています。",
         "choices": ["初期状態で有効化", "最初に選択できるように", "初期状態で無効化", "ユーザーが選択できないように"],
         "correctIndex": 2
     },
