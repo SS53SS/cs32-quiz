@@ -2,22 +2,82 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>３班-確認問題アプリ</title>
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; position: relative; }
-        h2 { text-align: center; color: #333; }
-        #progress { position: absolute; top: 20px; right: 20px; font-size: 0.9em; color: #666; background-color: #eee; padding: 4px 10px; border-radius: 20px; display: none; }
-        .question { font-size: 1.1em; font-weight: bold; margin-bottom: 20px; min-height: 50px; margin-top: 20px; }
-        .quiz-select { display: block; width: 100%; padding: 12px; font-size: 1em; border-radius: 4px; border: 1px solid #ddd; background-color: #fff; cursor: pointer; }
-        button { display: block; width: 100%; padding: 12px; margin-top: 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 1.1em; cursor: pointer; }
-        button:hover { background-color: #218838; }
+        body { 
+            font-family: sans-serif; 
+            max-width: 600px; 
+            width: 90%; /* スマホで左右に少し余白を作る */
+            margin: 20px auto; 
+            padding: 15px; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
+            background-color: #f9f9f9; 
+            position: relative; 
+            font-size: 16px; /* スマホで読みやすい基本サイズ */
+        }
+        h2 { text-align: center; color: #333; font-size: 1.4em; }
+        #progress { 
+            position: absolute; 
+            top: 10px; 
+            right: 10px; 
+            font-size: 0.8em; 
+            color: #666; 
+            background-color: #eee; 
+            padding: 4px 10px; 
+            border-radius: 20px; 
+        }
+        .question { 
+            font-size: 1.1em; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+            min-height: 60px; 
+            margin-top: 30px; 
+            line-height: 1.4;
+        }
+        /* セレクトボックスをスマホで見やすく */
+        .quiz-select { 
+            display: block; 
+            width: 100%; 
+            padding: 15px; 
+            font-size: 1em; 
+            border-radius: 8px; 
+            border: 1px solid #ddd; 
+            background-color: #fff; 
+            cursor: pointer;
+            -webkit-appearance: none; /* iOS特有のスタイルをリセット */
+        }
+        /* ボタンを大きくして押しやすく */
+        button { 
+            display: block; 
+            width: 100%; 
+            padding: 15px; 
+            margin-top: 15px; 
+            background-color: #28a745; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1.1em; 
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button:active { transform: translateY(2px); box-shadow: none; }
+        
         .button-group { display: flex; gap: 10px; margin-top: 20px; }
-        .button-group button { flex: 1; margin: 0; }
+        .button-group button { flex: 1; margin: 0; font-size: 0.9em; padding: 12px; }
+        
         #reset-btn { background-color: #007bff; }
         #cancel-btn { background-color: #dc3545; }
-        #result { margin-top: 20px; font-weight: bold; text-align: center; height: 1.5em; font-size: 1.2em; }
-        .screen { display: none; text-align: center; }
-        .menu-btn { background-color: #6c757d; margin-bottom: 10px; }
+        #result { margin-top: 20px; font-weight: bold; text-align: center; min-height: 1.5em; font-size: 1.2em; }
+        .screen { text-align: center; }
+        
+        /* ファイル選択ボタンの色分け */
+        .file-btn { background-color: #555 !important; }
+        /* 出題数ボタンの色分け */
+        .num-btn { background-color: #007bff !important; }
+
+        footer { text-align: center; margin-top: 40px; padding-bottom: 20px; color: #888; font-size: 0.8em; }
     </style>
 </head>
 <body>
@@ -25,26 +85,26 @@
     <div id="progress">0 / 0</div>
 
     <div id="file-select-screen" class="screen" style="display: block;">
-        <h2>問題ファイルを選択してください</h2>
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 30px;">
-            <button onclick="loadFile('questions01.js')" style="background-color: #555;">01 暗号及び認証</button>
-            <button onclick="loadFile('questions02.js')" style="background-color: #555;">02 ホストセキュリティ１</button>
+        <h2>問題ファイルを選択</h2>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+            <button class="file-btn" onclick="loadFile('questions01.js')">01 暗号及び認証</button>
+            <button class="file-btn" onclick="loadFile('questions02.js')">02 ホストセキュリティ１</button>
         </div>
     </div>
 
-    <div id="start-screen" class="screen">
-        <h2>出題数を選択してください</h2>
-        <p id="total-info" style="font-size: 1.1em; margin: 30px 0;"></p>
+    <div id="start-screen" class="screen" style="display: none;">
+        <h2>出題数を選択</h2>
+        <p id="total-info" style="font-size: 1em; margin: 20px 0; color: #666;"></p>
         <div style="display: flex; flex-direction: column; gap: 10px;">
-            <button onclick="startQuiz(10)" style="background-color: #007bff;">10問</button>
-            <button onclick="startQuiz(30)" style="background-color: #007bff;">30問</button>
-            <button onclick="startQuiz(50)" style="background-color: #007bff;">50問</button>
-            <button onclick="startQuiz(null)" style="background-color: #28a745;">全問</button>
-            <button onclick="location.reload()" style="background-color: #aaa; margin-top: 20px;">ファイル選択に戻る</button>
+            <button class="num-btn" onclick="startQuiz(10)">10問</button>
+            <button class="num-btn" onclick="startQuiz(30)">30問</button>
+            <button class="num-btn" onclick="startQuiz(50)">50問</button>
+            <button onclick="startQuiz(null)">全問</button>
+            <button onclick="location.reload()" style="background-color: #aaa; margin-top: 20px;">戻る</button>
         </div>
     </div>
 
-    <div id="quiz-container" class="screen">
+    <div id="quiz-container" class="screen" style="display: none;">
         <div id="question-text" class="question"></div>
         <div id="select-container"></div>
         <button id="submit-btn" onclick="checkAnswer()">回答を確定する</button>
@@ -56,51 +116,37 @@
     </div>
 
     <script>
-        let quizDataRaw = []; // 読み込んだファイルの中身を格納
+        let quizDataRaw = [];
         let quizData = [];
         let currentQuestionIndex = 0;
         let correctCount = 0;
 
-// 手順1: JSファイルを動的に読み込む（キャッシュ対策版）
         function loadFile(fileName) {
-            // 既存の古いスクリプトタグがあれば削除
             const oldScript = document.getElementById('quiz-script');
             if (oldScript) oldScript.remove();
-
-            // 読み込む前に一度データを空にする（古いデータを引きずらないため）
             quizDataRaw = [];
-
             const script = document.createElement('script');
             script.id = 'quiz-script';
-            // ファイル名の後ろに時刻を付けて「新しいファイル」だと思い込ませる
             script.src = fileName + "?t=" + new Date().getTime();
-            
             script.onload = () => {
-                // データが正しく入ったかチェック
                 if (quizDataRaw.length === 0) {
-                    alert("データが読み込めませんでした。jsファイル内の 'const' を消しているか確認してください。");
+                    alert("データが空か読み込めませんでした。");
                     return;
                 }
                 document.getElementById('file-select-screen').style.display = "none";
                 document.getElementById('start-screen').style.display = "block";
-                document.getElementById('total-info').textContent = `全${quizDataRaw.length}問中から何問出題しますか？`;
+                document.getElementById('total-info').textContent = `全${quizDataRaw.length}問から出題数を選択`;
             };
-
-            script.onerror = () => {
-                alert("ファイルの読み込みに失敗しました。");
-            };
-
+            script.onerror = () => alert("ファイルの読み込みに失敗しました。");
             document.body.appendChild(script);
         }
-        // 手順2: クイズ開始
+
         function startQuiz(questionCount) {
             const shuffled = [...quizDataRaw].sort(() => Math.random() - 0.5);
             quizData = questionCount ? shuffled.slice(0, questionCount) : shuffled;
-            
             document.getElementById('start-screen').style.display = "none";
             document.getElementById('quiz-container').style.display = "block";
             document.getElementById('progress').style.display = "block";
-            
             currentQuestionIndex = 0;
             correctCount = 0;
             showQuestion();
@@ -114,22 +160,24 @@
             if (currentQuestionIndex >= quizData.length) {
                 document.getElementById('progress').style.display = "none";
                 const accuracy = Math.round((correctCount / quizData.length) * 100);
-                document.getElementById('quiz-container').innerHTML = `<h2>全問終了！</h2><p style="font-size: 1.2em; text-align: center;">正解数: <strong>${correctCount}/${quizData.length}</strong></p><p style="font-size: 1.1em; text-align: center; color: #666;">正答率: <strong>${accuracy}%</strong></p><button onclick='location.reload()'>最初から解き直す</button>`;
+                document.getElementById('quiz-container').innerHTML = `
+                    <h2>結果発表</h2>
+                    <p style="font-size: 1.4em;">正解数: <strong>${correctCount}/${quizData.length}</strong></p>
+                    <p style="font-size: 1.1em; color: #666;">正答率: <strong>${accuracy}%</strong></p>
+                    <button onclick='location.reload()'>トップに戻る</button>
+                `;
                 return;
             }
-
             updateProgress();
             const q = quizData[currentQuestionIndex];
             document.getElementById('question-text').textContent = `Q${currentQuestionIndex + 1}. ${q.text}`;
-
             const container = document.getElementById('select-container');
-            let selectHtml = `<select id="answer-select" class="quiz-select"><option value="">-- 選択してください --</option>`;
+            let selectHtml = `<select id="answer-select" class="quiz-select"><option value="">-- タップして選択 --</option>`;
             q.choices.forEach((choiceText, index) => {
                 selectHtml += `<option value="${index}">${choiceText}</option>`;
             });
             selectHtml += `</select>`;
             container.innerHTML = selectHtml;
-            
             document.getElementById('result').textContent = "";
             document.getElementById('submit-btn').style.display = "block";
         }
@@ -140,29 +188,26 @@
                 alert("選択肢を選んでください。");
                 return;
             }
-
             const selectedIndex = parseInt(selectElement.value);
             const q = quizData[currentQuestionIndex];
             const resultDiv = document.getElementById('result');
-
             if (selectedIndex === q.correctIndex) {
                 resultDiv.textContent = "⭕ 正解です！";
                 resultDiv.style.color = "green";
                 correctCount++;
             } else {
-                resultDiv.textContent = `❌ 不正解... (正解: ${q.choices[q.correctIndex]})`;
+                resultDiv.textContent = `❌ 不正解...`;
                 resultDiv.style.color = "red";
             }
-
             document.getElementById('submit-btn').style.display = "none";
             setTimeout(() => {
                 currentQuestionIndex++;
                 showQuestion();
-            }, 1500);
+            }, 1200);
         }
 
         function resetQuiz() {
-            if (confirm("最初に戻ります。よろしいですか？")) {
+            if (confirm("最初に戻りますか？")) {
                 currentQuestionIndex = 0;
                 correctCount = 0;
                 showQuestion();
@@ -170,13 +215,13 @@
         }
 
         function cancelQuiz() {
-            if (confirm("クイズを中断します。よろしいですか？")) {
+            if (confirm("中断してトップに戻りますか？")) {
                 location.reload();
             }
         }
     </script>
 
-    <footer style="text-align: center; margin-top: 40px; padding-bottom: 20px; color: #888; font-size: 0.8em;">
+    <footer>
         (C)#32CS3PtSS
     </footer>
 </body>
