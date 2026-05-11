@@ -1,5 +1,5 @@
 // questions.js
-const quizDataRaw = [
+quizDataRaw = [
     {
         "text": "初期状態のWindowsシステムが抱える問題点のうち、「ビルトインアカウント（Administrator,Guest）の存在⇒標的になる可能性」の処置を選べ",
         "choices": ["使用しない、無効、アカウントロック", "不必要なコンポーネントを消す", "everyoneの権限を削除", "適切に収集するように設定を変える", "管理共有の使用停止。イベントログの取得設定"],

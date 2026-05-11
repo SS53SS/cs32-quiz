@@ -1,5 +1,5 @@
 // questions.js
-const quizDataRaw = [
+quizDataRaw = [
     {
         "text": "問題はありません",
         "choices": ["YES", "NO"],
