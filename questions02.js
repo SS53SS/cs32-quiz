@@ -59,5 +59,45 @@ const quizDataRaw = [
         "text": "ドメインのユーザー作成方法は「　　　　　」である。",
         "choices": ["コンピューターごとに個別作成", "ドメインコントローラ（Active Directory）サーバで一括作成"],
         "correctIndex": 1
+    },
+    {
+        "text": "ワークグループのユーザー作成方法は「　　　　　」である。",
+        "choices": ["コンピューターごとに個別作成", "ドメインコントローラ（Active Directory）サーバで一括作成"],
+        "correctIndex": 0
+    },
+    {
+        "text": "Windowsをインストールした際に自動的に作成されるユーザーは「　　　　　」である。",
+        "choices": ["作成されたユーザーアカウント", "ビルトインユーザーアカウント"],
+        "correctIndex": 1
+    },
+    {
+        "text": "ビルトインユーザーアカウントではないのは「　　　　　」である。",
+        "choices": ["Administrator", "Guenst", "Root"],
+        "correctIndex": 2
+    },
+    {
+        "text": "Administratorアカウントとは別名「　　　　　」と呼ばれる。",
+        "choices": ["ビルトインAdministratorアカウント", "ビルトインAbministratorアカウント", "ビルトインSystemAdminアカウント"],
+        "correctIndex": 0
+    },
+    {
+        "text": "ビルトインAdministratorアカウントは瀬部手の操作が管理者権限で実行できるため、WindowsVISTA以降のOSでは、「　　　　　」されています。",
+        "choices": ["初期状態で有効化", "最初に選択できるように", "初期状態で無効化", "ユーザーが選択できないように"],
+        "correctIndex": 2
+    },
+    {
+        "text": "Guestアカウントの特徴で誤っているのはどれか",
+        "choices": ["コンピューター上に実際のアカウントを持っていないユーザーが使用", "パスワードは要求されない", "既定では無効", "権利とアクセス権の設定ができる", "Administratorsグループのメンバ"],
+        "correctIndex": 4
+    },
+    {
+        "text": "ビルトイングループではないのはどれか",
+        "choices": ["Administrator", "Administrators", "Replicator", "Users", "Backup Operators"],
+        "correctIndex": 4
+    },
+    {
+        "text": "Administratorsグループの特徴で誤っているのはどれか",
+        "choices": ["最大の既定のアクセス許可を持つ", "自身のアクセス許可を変更できる", "ファイルを保護しているアクセス許可に関わらず、ファイルのバックアップと復元を行う"],
+        "correctIndex": 2
     }
 ];
