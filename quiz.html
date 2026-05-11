@@ -8,14 +8,14 @@
         body { 
             font-family: sans-serif; 
             max-width: 600px; 
-            width: 90%; /* スマホで左右に少し余白を作る */
+            width: 90%; 
             margin: 20px auto; 
             padding: 15px; 
             border: 1px solid #ccc; 
             border-radius: 8px; 
             background-color: #f9f9f9; 
             position: relative; 
-            font-size: 16px; /* スマホで読みやすい基本サイズ */
+            font-size: 16px; 
         }
         h2 { text-align: center; color: #333; font-size: 1.4em; }
         #progress { 
@@ -27,6 +27,7 @@
             background-color: #eee; 
             padding: 4px 10px; 
             border-radius: 20px; 
+            display: none; /* 初期は非表示 */
         }
         .question { 
             font-size: 1.1em; 
@@ -36,7 +37,6 @@
             margin-top: 30px; 
             line-height: 1.4;
         }
-        /* セレクトボックスをスマホで見やすく */
         .quiz-select { 
             display: block; 
             width: 100%; 
@@ -46,9 +46,8 @@
             border: 1px solid #ddd; 
             background-color: #fff; 
             cursor: pointer;
-            -webkit-appearance: none; /* iOS特有のスタイルをリセット */
+            -webkit-appearance: none; 
         }
-        /* ボタンを大きくして押しやすく */
         button { 
             display: block; 
             width: 100%; 
@@ -64,6 +63,18 @@
         }
         button:active { transform: translateY(2px); box-shadow: none; }
         
+        /* パスワード入力欄のスタイル */
+        #pw-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.2em;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
         .button-group { display: flex; gap: 10px; margin-top: 20px; }
         .button-group button { flex: 1; margin: 0; font-size: 0.9em; padding: 12px; }
         
@@ -72,9 +83,7 @@
         #result { margin-top: 20px; font-weight: bold; text-align: center; min-height: 1.5em; font-size: 1.2em; }
         .screen { text-align: center; }
         
-        /* ファイル選択ボタンの色分け */
         .file-btn { background-color: #555 !important; }
-        /* 出題数ボタンの色分け */
         .num-btn { background-color: #007bff !important; }
 
         footer { text-align: center; margin-top: 40px; padding-bottom: 20px; color: #888; font-size: 0.8em; }
@@ -84,7 +93,14 @@
 
     <div id="progress">0 / 0</div>
 
-    <div id="file-select-screen" class="screen" style="display: block;">
+    <div id="password-screen" class="screen" style="display: block;">
+        <h2>認証</h2>
+        <p>パスワードを入力してください</p>
+        <input type="password" id="pw-input" placeholder="数字4桁" inputmode="numeric">
+        <button onclick="checkPassword()">ログイン</button>
+    </div>
+
+    <div id="file-select-screen" class="screen" style="display: none;">
         <h2>問題ファイルを選択</h2>
         <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
             <button class="file-btn" onclick="loadFile('questions01.js')">01 暗号及び認証</button>
@@ -120,6 +136,25 @@
         let quizData = [];
         let currentQuestionIndex = 0;
         let correctCount = 0;
+
+        // パスワードチェック関数
+        function checkPassword() {
+            const input = document.getElementById('pw-input').value;
+            if (input === "3203") {
+                document.getElementById('password-screen').style.display = "none";
+                document.getElementById('file-select-screen').style.display = "block";
+            } else {
+                alert("パスワードが違います。");
+                document.getElementById('pw-input').value = "";
+            }
+        }
+
+        // エンターキーでもログインできるようにする
+        document.getElementById('pw-input')?.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
 
         function loadFile(fileName) {
             const oldScript = document.getElementById('quiz-script');
