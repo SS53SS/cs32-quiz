@@ -61,30 +61,37 @@
         let currentQuestionIndex = 0;
         let correctCount = 0;
 
-        // 手順1: JSファイルを動的に読み込む
+// 手順1: JSファイルを動的に読み込む（キャッシュ対策版）
         function loadFile(fileName) {
             // 既存の古いスクリプトタグがあれば削除
             const oldScript = document.getElementById('quiz-script');
             if (oldScript) oldScript.remove();
 
+            // 読み込む前に一度データを空にする（古いデータを引きずらないため）
+            quizDataRaw = [];
+
             const script = document.createElement('script');
             script.id = 'quiz-script';
-            script.src = fileName;
+            // ファイル名の後ろに時刻を付けて「新しいファイル」だと思い込ませる
+            script.src = fileName + "?t=" + new Date().getTime();
             
             script.onload = () => {
-                // ファイルが読み込まれたら、問題数選択画面へ
+                // データが正しく入ったかチェック
+                if (quizDataRaw.length === 0) {
+                    alert("データが読み込めませんでした。jsファイル内の 'const' を消しているか確認してください。");
+                    return;
+                }
                 document.getElementById('file-select-screen').style.display = "none";
                 document.getElementById('start-screen').style.display = "block";
                 document.getElementById('total-info').textContent = `全${quizDataRaw.length}問中から何問出題しますか？`;
             };
 
             script.onerror = () => {
-                alert("ファイルの読み込みに失敗しました。ファイル名を確認してください。");
+                alert("ファイルの読み込みに失敗しました。");
             };
 
             document.body.appendChild(script);
         }
-
         // 手順2: クイズ開始
         function startQuiz(questionCount) {
             const shuffled = [...quizDataRaw].sort(() => Math.random() - 0.5);
