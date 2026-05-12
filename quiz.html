@@ -216,9 +216,14 @@
             document.body.appendChild(script);
         }
 
-        // 追加：ファイル選択画面に戻る関数
         function backToFileSelect() {
             document.getElementById('start-screen').style.display = "none";
+            document.getElementById('file-select-screen').style.display = "block";
+        }
+
+        // 追加：結果画面からファイル選択に戻る関数
+        function backToTop() {
+            document.getElementById('result-screen').style.display = "none";
             document.getElementById('file-select-screen').style.display = "block";
         }
 
@@ -261,6 +266,7 @@
                 document.getElementById('progress').style.display = "none";
                 document.getElementById('quiz-container').style.display = "none";
                 document.getElementById('result-screen').style.display = "block";
+                
                 const accuracy = Math.round((correctCount / quizData.length) * 100);
                 
                 let reviewHtml = "";
@@ -291,7 +297,7 @@
                     <p style="font-size: 1.1em; color: #666;">正答率: <strong>${accuracy}%</strong></p>
                     ${reviewHtml}
                     ${retryBtnHtml}
-                    <button onclick='location.reload()'>トップに戻る</button>
+                    <button onclick='backToTop()'>トップに戻る</button>
                 `;
                 return;
             }
@@ -359,7 +365,6 @@
 
         function cancelQuiz() {
             if (confirm("中断してファイル選択に戻りますか？")) {
-                // 修正：認証まで戻らずにファイル選択へ
                 document.getElementById('quiz-container').style.display = "none";
                 document.getElementById('progress').style.display = "none";
                 document.getElementById('file-select-screen').style.display = "block";
