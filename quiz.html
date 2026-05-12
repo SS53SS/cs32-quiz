@@ -27,7 +27,7 @@
             background-color: #eee; 
             padding: 4px 10px; 
             border-radius: 20px; 
-            display: none; /* 初期は非表示 */
+            display: none; 
         }
         .question { 
             font-size: 1.1em; 
@@ -63,7 +63,6 @@
         }
         button:active { transform: translateY(2px); box-shadow: none; }
         
-        /* パスワード入力欄のスタイル */
         #pw-input {
             width: 100%;
             padding: 12px;
@@ -85,6 +84,18 @@
         
         .file-btn { background-color: #555 !important; }
         .num-btn { background-color: #007bff !important; }
+
+        /* --- 追加：ステータスバーのスタイル --- */
+        #stats-bar {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.85em; /* 小さめのフォント */
+            color: #666;
+            font-weight: bold;
+        }
 
         footer { text-align: center; margin-top: 40px; padding-bottom: 20px; color: #888; font-size: 0.8em; }
     </style>
@@ -125,140 +136,3 @@
         <div id="question-text" class="question"></div>
         <div id="select-container"></div>
         <button id="submit-btn" onclick="checkAnswer()">回答を確定する</button>
-        <div class="button-group">
-            <button id="reset-btn" onclick="resetQuiz()">最初に戻る</button>
-            <button id="cancel-btn" onclick="cancelQuiz()">中断</button>
-        </div>
-        <div id="result"></div>
-    </div>
-
-    <script>
-        let quizDataRaw = [];
-        let quizData = [];
-        let currentQuestionIndex = 0;
-        let correctCount = 0;
-
-        // パスワードチェック関数
-        function checkPassword() {
-            const input = document.getElementById('pw-input').value;
-            if (input === "3203") {
-                document.getElementById('password-screen').style.display = "none";
-                document.getElementById('file-select-screen').style.display = "block";
-            } else {
-                alert("パスワードが違います。");
-                document.getElementById('pw-input').value = "";
-            }
-        }
-
-        // エンターキーでもログインできるようにする
-        document.getElementById('pw-input')?.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                checkPassword();
-            }
-        });
-
-        function loadFile(fileName) {
-            const oldScript = document.getElementById('quiz-script');
-            if (oldScript) oldScript.remove();
-            quizDataRaw = [];
-            const script = document.createElement('script');
-            script.id = 'quiz-script';
-            script.src = fileName + "?t=" + new Date().getTime();
-            script.onload = () => {
-                if (quizDataRaw.length === 0) {
-                    alert("データが空か読み込めませんでした。");
-                    return;
-                }
-                document.getElementById('file-select-screen').style.display = "none";
-                document.getElementById('start-screen').style.display = "block";
-                document.getElementById('total-info').textContent = `全${quizDataRaw.length}問から出題数を選択`;
-            };
-            script.onerror = () => alert("ファイルの読み込みに失敗しました。");
-            document.body.appendChild(script);
-        }
-
-        function startQuiz(questionCount) {
-            const shuffled = [...quizDataRaw].sort(() => Math.random() - 0.5);
-            quizData = questionCount ? shuffled.slice(0, questionCount) : shuffled;
-            document.getElementById('start-screen').style.display = "none";
-            document.getElementById('quiz-container').style.display = "block";
-            document.getElementById('progress').style.display = "block";
-            currentQuestionIndex = 0;
-            correctCount = 0;
-            showQuestion();
-        }
-
-        function updateProgress() {
-            document.getElementById('progress').textContent = `${currentQuestionIndex + 1} / ${quizData.length}`;
-        }
-
-        function showQuestion() {
-            if (currentQuestionIndex >= quizData.length) {
-                document.getElementById('progress').style.display = "none";
-                const accuracy = Math.round((correctCount / quizData.length) * 100);
-                document.getElementById('quiz-container').innerHTML = `
-                    <h2>結果発表</h2>
-                    <p style="font-size: 1.4em;">正解数: <strong>${correctCount}/${quizData.length}</strong></p>
-                    <p style="font-size: 1.1em; color: #666;">正答率: <strong>${accuracy}%</strong></p>
-                    <button onclick='location.reload()'>トップに戻る</button>
-                `;
-                return;
-            }
-            updateProgress();
-            const q = quizData[currentQuestionIndex];
-            document.getElementById('question-text').textContent = `Q${currentQuestionIndex + 1}. ${q.text}`;
-            const container = document.getElementById('select-container');
-            let selectHtml = `<select id="answer-select" class="quiz-select"><option value="">-- タップして選択 --</option>`;
-            q.choices.forEach((choiceText, index) => {
-                selectHtml += `<option value="${index}">${choiceText}</option>`;
-            });
-            selectHtml += `</select>`;
-            container.innerHTML = selectHtml;
-            document.getElementById('result').textContent = "";
-            document.getElementById('submit-btn').style.display = "block";
-        }
-
-        function checkAnswer() {
-            const selectElement = document.getElementById('answer-select');
-            if (selectElement.value === "") {
-                alert("選択肢を選んでください。");
-                return;
-            }
-            const selectedIndex = parseInt(selectElement.value);
-            const q = quizData[currentQuestionIndex];
-            const resultDiv = document.getElementById('result');
-            if (selectedIndex === q.correctIndex) {
-                resultDiv.textContent = "⭕ 正解です！";
-                resultDiv.style.color = "green";
-                correctCount++;
-            } else {
-                resultDiv.textContent = `❌ 不正解...`;
-                resultDiv.style.color = "red";
-            }
-            document.getElementById('submit-btn').style.display = "none";
-            setTimeout(() => {
-                currentQuestionIndex++;
-                showQuestion();
-            }, 1200);
-        }
-
-        function resetQuiz() {
-            if (confirm("最初に戻りますか？")) {
-                currentQuestionIndex = 0;
-                correctCount = 0;
-                showQuestion();
-            }
-        }
-
-        function cancelQuiz() {
-            if (confirm("中断してトップに戻りますか？")) {
-                location.reload();
-            }
-        }
-    </script>
-
-    <footer>
-        (C)#32CS3PtSS
-    </footer>
-</body>
-</html>
