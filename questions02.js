@@ -72,7 +72,7 @@ quizDataRaw = [
     },
     {
         "text": "ビルトインユーザーアカウントではないのは「　　　　　」である。",
-        "choices": ["Administrator", "Guenst", "Root"],
+        "choices": ["Administrator", "Guest", "Root"],
         "correctIndex": 2
     },
     {
