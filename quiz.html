@@ -85,14 +85,13 @@
         .file-btn { background-color: #555 !important; }
         .num-btn { background-color: #007bff !important; }
 
-        /* --- 追加：ステータスバーのスタイル --- */
         #stats-bar {
             margin-top: 20px;
             padding-top: 15px;
             border-top: 1px dashed #ccc;
             display: flex;
             justify-content: space-around;
-            font-size: 0.85em; /* 小さめのフォント */
+            font-size: 0.85em;
             color: #666;
             font-weight: bold;
         }
@@ -114,9 +113,9 @@
     <div id="file-select-screen" class="screen" style="display: none;">
         <h2>問題ファイルを選択</h2>
         <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-            <button class="file-btn" onclick="loadFile('questions01.js')">01 暗号及び認証（未作成）</button>
-            <button class="file-btn" onclick="loadFile('questions02.js')">02 ホストセキュリティ１（Windows防護のみ）</button>
-            <button class="file-btn" onclick="loadFile('questions03.js')">03 ホストセキュリティ１（Linux防護のみ）</button>
+            <button class="file-btn" onclick="loadFile('questions01.js')">01 暗号及び認証</button>
+            <button class="file-btn" onclick="loadFile('questions02.js')">02 ホストセキュリティ１（Windows）</button>
+            <button class="file-btn" onclick="loadFile('questions03.js')">03 ホストセキュリティ１（Linux）</button>
         </div>
     </div>
 
@@ -136,3 +135,77 @@
         <div id="question-text" class="question"></div>
         <div id="select-container"></div>
         <button id="submit-btn" onclick="checkAnswer()">回答を確定する</button>
+        <div class="button-group">
+            <button id="reset-btn" onclick="resetQuiz()">最初に戻る</button>
+            <button id="cancel-btn" onclick="cancelQuiz()">中断</button>
+        </div>
+        <div id="result"></div>
+        
+        <div id="stats-bar">
+            <span>正解: <span id="stat-correct">0</span>/<span id="stat-total1">0</span></span>
+            <span>問題: <span id="stat-current">0</span>/<span id="stat-total2">0</span></span>
+            <span>正解率: <span id="stat-rate">0</span>%</span>
+        </div>
+    </div>
+
+    <script>
+        let quizDataRaw = [];
+        let quizData = [];
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+
+        // 認証ロジック：前後の空白を削除して比較するように修正
+        function checkPassword() {
+            const input = document.getElementById('pw-input').value.trim();
+            if (input === "3203") {
+                document.getElementById('password-screen').style.display = "none";
+                document.getElementById('file-select-screen').style.display = "block";
+            } else {
+                alert("パスワードが違います。");
+                document.getElementById('pw-input').value = "";
+            }
+        }
+
+        // キー入力イベントの登録を確実に実行
+        window.onload = function() {
+            const pwInput = document.getElementById('pw-input');
+            if (pwInput) {
+                pwInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') checkPassword();
+                });
+            }
+        };
+
+        function loadFile(fileName) {
+            const oldScript = document.getElementById('quiz-script');
+            if (oldScript) oldScript.remove();
+            quizDataRaw = [];
+            const script = document.createElement('script');
+            script.id = 'quiz-script';
+            script.src = fileName + "?t=" + new Date().getTime();
+            script.onload = () => {
+                if (quizDataRaw.length === 0) {
+                    alert("データが空か読み込めませんでした。");
+                    return;
+                }
+                document.getElementById('file-select-screen').style.display = "none";
+                document.getElementById('start-screen').style.display = "block";
+                document.getElementById('total-info').textContent = `全${quizDataRaw.length}問から出題数を選択`;
+            };
+            script.onerror = () => alert("ファイルの読み込みに失敗しました。");
+            document.body.appendChild(script);
+        }
+
+        function startQuiz(questionCount) {
+            const shuffled = [...quizDataRaw].sort(() => Math.random() - 0.5);
+            quizData = questionCount ? shuffled.slice(0, questionCount) : shuffled;
+            document.getElementById('start-screen').style.display = "none";
+            document.getElementById('quiz-container').style.display = "block";
+            document.getElementById('progress').style.display = "block";
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            showQuestion();
+        }
+
+        function updateProgress() {
+            document.getElementById('progress').textContent = `${currentQuestionIndex + 1} /
