@@ -85,17 +85,36 @@
         .file-btn { background-color: #555 !important; }
         .num-btn { background-color: #007bff !important; }
 
-        /* 追加：ステータスバーのスタイル */
         #stats-bar {
             margin-top: 20px;
             padding-top: 15px;
             border-top: 1px dashed #ccc;
             display: flex;
             justify-content: space-around;
-            font-size: 0.85em; /* 小さめのフォント */
+            font-size: 0.85em;
             color: #666;
             font-weight: bold;
         }
+
+        /* 復習リスト用のスタイル */
+        .review-container {
+            text-align: left;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .review-item {
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #eee;
+            font-size: 0.9em;
+        }
+        .review-item:last-child { border-bottom: none; }
+        .correct-label { color: #d9534f; font-weight: bold; }
 
         footer { text-align: center; margin-top: 40px; padding-bottom: 20px; color: #888; font-size: 0.8em; }
     </style>
@@ -114,9 +133,9 @@
     <div id="file-select-screen" class="screen" style="display: none;">
         <h2>問題ファイルを選択</h2>
         <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-            <button class="file-btn" onclick="loadFile('questions01.js')">01 暗号及び認証（未作成）</button>
-            <button class="file-btn" onclick="loadFile('questions02.js')">02 ホストセキュリティ１（Windows防護のみ）</button>
-            <button class="file-btn" onclick="loadFile('questions03.js')">03 ホストセキュリティ１（Linux防護のみ）</button>
+            <button class="file-btn" onclick="loadFile('questions01.js')">01 暗号及び認証</button>
+            <button class="file-btn" onclick="loadFile('questions02.js')">02 ホストセキュリティ１（Windows）</button>
+            <button class="file-btn" onclick="loadFile('questions03.js')">03 ホストセキュリティ１（Linux）</button>
         </div>
     </div>
 
@@ -154,8 +173,8 @@
         let quizData = [];
         let currentQuestionIndex = 0;
         let correctCount = 0;
+        let missedQuestions = []; // 間違えた問題を保存する配列
 
-        // パスワードチェック関数（元の形を維持し、空白除去のみ追加）
         function checkPassword() {
             const input = document.getElementById('pw-input').value.trim();
             if (input === "3203") {
@@ -167,12 +186,14 @@
             }
         }
 
-        // エンターキーでもログインできるようにする（元の形を維持）
-        document.getElementById('pw-input')?.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                checkPassword();
+        window.onload = function() {
+            const pwInput = document.getElementById('pw-input');
+            if (pwInput) {
+                pwInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') checkPassword();
+                });
             }
-        });
+        };
 
         function loadFile(fileName) {
             const oldScript = document.getElementById('quiz-script');
@@ -202,6 +223,7 @@
             document.getElementById('progress').style.display = "block";
             currentQuestionIndex = 0;
             correctCount = 0;
+            missedQuestions = []; // 初期化
             showQuestion();
         }
 
@@ -209,24 +231,17 @@
             document.getElementById('progress').textContent = `${currentQuestionIndex + 1} / ${quizData.length}`;
         }
 
-        // 追加：ステータスバーの数字を計算して更新する処理
         function updateStatsDisplay(isAfterAnswer) {
             const total = quizData.length;
             if (total === 0) return;
-            
             let displayCurrent = currentQuestionIndex + 1;
             if (displayCurrent > total) displayCurrent = total;
-
-            // 回答済みの問題数を計算
             let answered = currentQuestionIndex;
             if (isAfterAnswer) answered += 1;
-            
-            // 正解率の計算
             let rate = 0;
             if (answered > 0) {
                 rate = Math.round((correctCount / answered) * 100);
             }
-
             document.getElementById('stat-correct').textContent = correctCount;
             document.getElementById('stat-total1').textContent = total;
             document.getElementById('stat-current').textContent = displayCurrent;
@@ -238,17 +253,38 @@
             if (currentQuestionIndex >= quizData.length) {
                 document.getElementById('progress').style.display = "none";
                 const accuracy = Math.round((correctCount / quizData.length) * 100);
+                
+                // 復習リストのHTMLを作成
+                let reviewHtml = "";
+                if (missedQuestions.length > 0) {
+                    reviewHtml = `
+                        <h3 style="margin-top:20px; font-size:1em; color:#d9534f;">【復習リスト】</h3>
+                        <div class="review-container">
+                    `;
+                    missedQuestions.forEach((q, i) => {
+                        reviewHtml += `
+                            <div class="review-item">
+                                <strong>問:</strong> ${q.text}<br>
+                                <span class="correct-label">正解: ${q.choices[q.correctIndex]}</span>
+                            </div>
+                        `;
+                    });
+                    reviewHtml += `</div>`;
+                } else {
+                    reviewHtml = `<p style="color:#28a745; font-weight:bold; margin-top:20px;">全問正解！素晴らしい！</p>`;
+                }
+
                 document.getElementById('quiz-container').innerHTML = `
                     <h2>結果発表</h2>
                     <p style="font-size: 1.4em;">正解数: <strong>${correctCount}/${quizData.length}</strong></p>
                     <p style="font-size: 1.1em; color: #666;">正答率: <strong>${accuracy}%</strong></p>
+                    ${reviewHtml}
                     <button onclick='location.reload()'>トップに戻る</button>
                 `;
                 return;
             }
             updateProgress();
-            updateStatsDisplay(false); // 問題表示時にステータスを更新
-
+            updateStatsDisplay(false); 
             const q = quizData[currentQuestionIndex];
             document.getElementById('question-text').textContent = `Q${currentQuestionIndex + 1}. ${q.text}`;
             const container = document.getElementById('select-container');
@@ -271,7 +307,6 @@
             const selectedIndex = parseInt(selectElement.value);
             const q = quizData[currentQuestionIndex];
             const resultDiv = document.getElementById('result');
-            
             if (selectedIndex === q.correctIndex) {
                 resultDiv.textContent = "⭕ 正解です！";
                 resultDiv.style.color = "green";
@@ -279,10 +314,10 @@
             } else {
                 resultDiv.textContent = `❌ 不正解...`;
                 resultDiv.style.color = "red";
+                // 間違えた問題を保存
+                missedQuestions.push(q);
             }
-            
-            updateStatsDisplay(true); // 回答判定直後にステータスを更新
-            
+            updateStatsDisplay(true);
             document.getElementById('submit-btn').style.display = "none";
             setTimeout(() => {
                 currentQuestionIndex++;
@@ -294,6 +329,7 @@
             if (confirm("最初に戻りますか？")) {
                 currentQuestionIndex = 0;
                 correctCount = 0;
+                missedQuestions = [];
                 showQuestion();
             }
         }
