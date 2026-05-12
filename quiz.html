@@ -96,7 +96,6 @@
             font-weight: bold;
         }
 
-        /* 復習リスト用のスタイル */
         .review-container {
             text-align: left;
             background: white;
@@ -168,12 +167,14 @@
         </div>
     </div>
 
+    <div id="result-screen" class="screen" style="display: none;"></div>
+
     <script>
         let quizDataRaw = [];
         let quizData = [];
         let currentQuestionIndex = 0;
         let correctCount = 0;
-        let missedQuestions = []; // 間違えた問題を保存する配列
+        let missedQuestions = []; 
 
         function checkPassword() {
             const input = document.getElementById('pw-input').value.trim();
@@ -223,7 +224,7 @@
             document.getElementById('progress').style.display = "block";
             currentQuestionIndex = 0;
             correctCount = 0;
-            missedQuestions = []; // 初期化
+            missedQuestions = []; 
             showQuestion();
         }
 
@@ -251,17 +252,22 @@
 
         function showQuestion() {
             if (currentQuestionIndex >= quizData.length) {
+                // クイズ終了時の処理
                 document.getElementById('progress').style.display = "none";
+                document.getElementById('quiz-container').style.display = "none";
+                document.getElementById('result-screen').style.display = "block";
+                
                 const accuracy = Math.round((correctCount / quizData.length) * 100);
                 
-                // 復習リストのHTMLを作成
                 let reviewHtml = "";
+                let retryBtnHtml = "";
+                
                 if (missedQuestions.length > 0) {
                     reviewHtml = `
                         <h3 style="margin-top:20px; font-size:1em; color:#d9534f;">【復習リスト】</h3>
                         <div class="review-container">
                     `;
-                    missedQuestions.forEach((q, i) => {
+                    missedQuestions.forEach((q) => {
                         reviewHtml += `
                             <div class="review-item">
                                 <strong>問:</strong> ${q.text}<br>
@@ -270,15 +276,19 @@
                         `;
                     });
                     reviewHtml += `</div>`;
+                    
+                    // 追加：再挑戦ボタン（目立つように黄色系にしています）
+                    retryBtnHtml = `<button onclick='retryMissed()' style='background-color: #ffc107; color: #333; margin-top: 20px; font-weight: bold;'>間違えた問題だけをやり直す</button>`;
                 } else {
                     reviewHtml = `<p style="color:#28a745; font-weight:bold; margin-top:20px;">全問正解！素晴らしい！</p>`;
                 }
 
-                document.getElementById('quiz-container').innerHTML = `
+                document.getElementById('result-screen').innerHTML = `
                     <h2>結果発表</h2>
                     <p style="font-size: 1.4em;">正解数: <strong>${correctCount}/${quizData.length}</strong></p>
                     <p style="font-size: 1.1em; color: #666;">正答率: <strong>${accuracy}%</strong></p>
                     ${reviewHtml}
+                    ${retryBtnHtml}
                     <button onclick='location.reload()'>トップに戻る</button>
                 `;
                 return;
@@ -307,6 +317,7 @@
             const selectedIndex = parseInt(selectElement.value);
             const q = quizData[currentQuestionIndex];
             const resultDiv = document.getElementById('result');
+            
             if (selectedIndex === q.correctIndex) {
                 resultDiv.textContent = "⭕ 正解です！";
                 resultDiv.style.color = "green";
@@ -314,15 +325,35 @@
             } else {
                 resultDiv.textContent = `❌ 不正解...`;
                 resultDiv.style.color = "red";
-                // 間違えた問題を保存
                 missedQuestions.push(q);
             }
-            updateStatsDisplay(true);
+            
+            updateStatsDisplay(true); 
             document.getElementById('submit-btn').style.display = "none";
             setTimeout(() => {
                 currentQuestionIndex++;
                 showQuestion();
             }, 1200);
+        }
+
+        // 追加：間違えた問題だけをやり直す関数
+        function retryMissed() {
+            if (!confirm("間違えた問題だけをやり直しますか？")) return;
+            
+            // クイズデータを「間違えた問題リスト」で上書きし、ランダムに並び替え
+            quizData = [...missedQuestions].sort(() => Math.random() - 0.5);
+            
+            // 状態をリセット
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            missedQuestions = []; 
+            
+            // 画面を切り替えてクイズ再開
+            document.getElementById('result-screen').style.display = "none";
+            document.getElementById('quiz-container').style.display = "block";
+            document.getElementById('progress').style.display = "block";
+            
+            showQuestion();
         }
 
         function resetQuiz() {
