@@ -115,6 +115,30 @@
         .review-item:last-child { border-bottom: none; }
         .correct-label { color: #d9534f; font-weight: bold; }
 
+        /* チェックボックス用のスタイル */
+        .shuffle-option {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .shuffle-option label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #444;
+        }
+        .shuffle-option input {
+            transform: scale(1.5);
+            margin-right: 12px;
+        }
+
         footer { text-align: center; margin-top: 40px; padding-bottom: 20px; color: #888; font-size: 0.8em; }
     </style>
 </head>
@@ -141,6 +165,13 @@
     <div id="start-screen" class="screen" style="display: none;">
         <h2>出題数を選択</h2>
         <p id="total-info" style="font-size: 1em; margin: 20px 0; color: #666;"></p>
+        
+        <div class="shuffle-option">
+            <label>
+                <input type="checkbox" id="shuffle-choices" checked> 選択肢を毎回シャッフルする
+            </label>
+        </div>
+
         <div style="display: flex; flex-direction: column; gap: 10px;">
             <button class="num-btn" onclick="startQuiz(10)">10問</button>
             <button class="num-btn" onclick="startQuiz(30)">30問</button>
@@ -221,7 +252,6 @@
             document.getElementById('file-select-screen').style.display = "block";
         }
 
-        // 追加：結果画面からファイル選択に戻る関数
         function backToTop() {
             document.getElementById('result-screen').style.display = "none";
             document.getElementById('file-select-screen').style.display = "block";
@@ -229,7 +259,23 @@
 
         function startQuiz(questionCount) {
             const shuffled = [...quizDataRaw].sort(() => Math.random() - 0.5);
-            quizData = questionCount ? shuffled.slice(0, questionCount) : shuffled;
+            let selectedData = questionCount ? shuffled.slice(0, questionCount) : shuffled;
+
+            // 選択肢のシャッフル処理
+            if (document.getElementById('shuffle-choices').checked) {
+                selectedData = selectedData.map(q => {
+                    const originalCorrectText = q.choices[q.correctIndex];
+                    const shuffledChoices = [...q.choices].sort(() => Math.random() - 0.5);
+                    const newCorrectIndex = shuffledChoices.indexOf(originalCorrectText);
+                    return {
+                        ...q,
+                        choices: shuffledChoices,
+                        correctIndex: newCorrectIndex
+                    };
+                });
+            }
+
+            quizData = selectedData;
             document.getElementById('start-screen').style.display = "none";
             document.getElementById('quiz-container').style.display = "block";
             document.getElementById('progress').style.display = "block";
@@ -325,6 +371,7 @@
             const selectedIndex = parseInt(selectElement.value);
             const q = quizData[currentQuestionIndex];
             const resultDiv = document.getElementById('result');
+            
             if (selectedIndex === q.correctIndex) {
                 resultDiv.textContent = "⭕ 正解です！";
                 resultDiv.style.color = "green";
@@ -334,6 +381,7 @@
                 resultDiv.style.color = "red";
                 missedQuestions.push(q);
             }
+            
             updateStatsDisplay(true); 
             document.getElementById('submit-btn').style.display = "none";
             setTimeout(() => {
