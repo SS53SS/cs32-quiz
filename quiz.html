@@ -27,7 +27,7 @@
             background-color: #eee; 
             padding: 4px 10px; 
             border-radius: 20px; 
-            display: none; /* 初期は非表示 */
+            display: none; 
         }
         .question { 
             font-size: 1.1em; 
@@ -63,7 +63,6 @@
         }
         button:active { transform: translateY(2px); box-shadow: none; }
         
-        /* パスワード入力欄のスタイル */
         #pw-input {
             width: 100%;
             padding: 12px;
@@ -85,6 +84,18 @@
         
         .file-btn { background-color: #555 !important; }
         .num-btn { background-color: #007bff !important; }
+
+        /* 追加：ステータスバーのスタイル */
+        #stats-bar {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.85em; /* 小さめのフォント */
+            color: #666;
+            font-weight: bold;
+        }
 
         footer { text-align: center; margin-top: 40px; padding-bottom: 20px; color: #888; font-size: 0.8em; }
     </style>
@@ -130,6 +141,12 @@
             <button id="cancel-btn" onclick="cancelQuiz()">中断</button>
         </div>
         <div id="result"></div>
+        
+        <div id="stats-bar">
+            <span>正解: <span id="stat-correct">0</span>/<span id="stat-total1">0</span></span>
+            <span>問題: <span id="stat-current">0</span>/<span id="stat-total2">0</span></span>
+            <span>正解率: <span id="stat-rate">0</span>%</span>
+        </div>
     </div>
 
     <script>
@@ -138,9 +155,9 @@
         let currentQuestionIndex = 0;
         let correctCount = 0;
 
-        // パスワードチェック関数
+        // パスワードチェック関数（元の形を維持し、空白除去のみ追加）
         function checkPassword() {
-            const input = document.getElementById('pw-input').value;
+            const input = document.getElementById('pw-input').value.trim();
             if (input === "3203") {
                 document.getElementById('password-screen').style.display = "none";
                 document.getElementById('file-select-screen').style.display = "block";
@@ -150,7 +167,7 @@
             }
         }
 
-        // エンターキーでもログインできるようにする
+        // エンターキーでもログインできるようにする（元の形を維持）
         document.getElementById('pw-input')?.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 checkPassword();
@@ -192,6 +209,31 @@
             document.getElementById('progress').textContent = `${currentQuestionIndex + 1} / ${quizData.length}`;
         }
 
+        // 追加：ステータスバーの数字を計算して更新する処理
+        function updateStatsDisplay(isAfterAnswer) {
+            const total = quizData.length;
+            if (total === 0) return;
+            
+            let displayCurrent = currentQuestionIndex + 1;
+            if (displayCurrent > total) displayCurrent = total;
+
+            // 回答済みの問題数を計算
+            let answered = currentQuestionIndex;
+            if (isAfterAnswer) answered += 1;
+            
+            // 正解率の計算
+            let rate = 0;
+            if (answered > 0) {
+                rate = Math.round((correctCount / answered) * 100);
+            }
+
+            document.getElementById('stat-correct').textContent = correctCount;
+            document.getElementById('stat-total1').textContent = total;
+            document.getElementById('stat-current').textContent = displayCurrent;
+            document.getElementById('stat-total2').textContent = total;
+            document.getElementById('stat-rate').textContent = rate;
+        }
+
         function showQuestion() {
             if (currentQuestionIndex >= quizData.length) {
                 document.getElementById('progress').style.display = "none";
@@ -205,6 +247,8 @@
                 return;
             }
             updateProgress();
+            updateStatsDisplay(false); // 問題表示時にステータスを更新
+
             const q = quizData[currentQuestionIndex];
             document.getElementById('question-text').textContent = `Q${currentQuestionIndex + 1}. ${q.text}`;
             const container = document.getElementById('select-container');
@@ -227,6 +271,7 @@
             const selectedIndex = parseInt(selectElement.value);
             const q = quizData[currentQuestionIndex];
             const resultDiv = document.getElementById('result');
+            
             if (selectedIndex === q.correctIndex) {
                 resultDiv.textContent = "⭕ 正解です！";
                 resultDiv.style.color = "green";
@@ -235,6 +280,9 @@
                 resultDiv.textContent = `❌ 不正解...`;
                 resultDiv.style.color = "red";
             }
+            
+            updateStatsDisplay(true); // 回答判定直後にステータスを更新
+            
             document.getElementById('submit-btn').style.display = "none";
             setTimeout(() => {
                 currentQuestionIndex++;
