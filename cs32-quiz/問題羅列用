@@ -1,0 +1,47 @@
+添付の中のフォーマットに変換してください。"text": "",の行の""に問題を、"choices": ["", "", "", " ", ""],の""に,区切りの選択肢を入れて。"correctIndex": 0 の
+0の部分には半角数字で３行目にあたるものを入れて。
+
+IPデータグラムフォーマットのフィールド名と説明について正しくないのはどれか
+Version：IPのバージョン種別を示す。現在の主流はバージョン4,IHL：IPヘッダ長を示す,Type of Service：IPデータグラム転送時のネットワークサービスレベルを指示する,Total Length：IPヘッダ全長を示す
+3
+
+IPデータグラムフォーマットのフィールド名と説明について正しくないのはどれか
+Identification：IPデータグラムがフラグメント化された場合、各断片が元のデータグラムと同一であることを示す識別子,Flags：Flagmentionに関する状態変更を指示する,Fragment Offset：IPデータグラムがFragmentationによって分割された際、元のIPデータグラムの位置を示す
+1
+
+IPデータグラムフォーマットのフィールド名と説明について正しくないのはどれか
+Identity：IPデータグラムがフラグメント化された場合、各断片が元のデータグラムと同一であることを示す識別子,Flags：Flagmentionに関する制御を指示する,Fragment Offset：IPデータグラムがFragmentationによって分割された際、元のIPデータグラムの位置を示す
+0
+
+IPデータグラムフォーマットのフィールド名とサイズについて正しくないのはどれか
+Version：4,IHL：4,Type of Service：8,Total Length：16,Identification：16,Flags：4,Fragment Offset：13
+5
+
+IPデータグラムフォーマットのフィールド名とサイズについて正しくないのはどれか
+TTL：4,Protocol：8,Header Checksum：16,Source Address：32,Destination Address：32,Options：可変長,Padding：可変長
+0
+
+IPデータグラムフォーマットのフィールド名とサイズについて正しくないのはどれか
+TTL：8,Protocol：8,Header Checksum：16,Source Address：32,Destination Address：32,Options：8,Padding：可変長
+5
+
+Source AddressとはIPパケットの「　　　　　」のIPアドレス
+送信先,送信元,宛先,中継先
+1
+
+Destination AddressとはIPパケットの「　　　　　」のIPアドレス
+送信先,送信元,中継先
+0
+
+IPの役割で、転送先の決定のため、LAN内のアドレス範囲は、一度計算すれば済むため、表のような形で管理することを何というか
+ルートテーブル,ルーティングマトリックス,ルーティングテーブル,rootmap
+2
+
+TTL　IPパケットを作る送信元パソコンのIPが初期値を決め、ルーターを通過するごとに「　　　　　」ずつ減少する
+1,2,5,10,254
+0
+
+TTLの初期値について正しいものはどれか
+UNIX：254,Windows：128,Linux：63,Cisco IOS：200
+1
+
