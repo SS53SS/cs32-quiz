@@ -97,7 +97,7 @@ quizDataRaw = [
     },
     {
         "text": "IPは、自身がつながっている回線のMTUを「　　　　　」に問い合わせ、自分とつながっている回線が許す限り大きなIPパケットを作って送る。",
-        "choices": ["TTL", "Flags", "NDA", "NIC", "ITU.KCC"],
+        "choices": ["TTL", "Flags", "NDA", "NIC", "ITU", "KCC"],
         "correctIndex": 3
     },
     {
