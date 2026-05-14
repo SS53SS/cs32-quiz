@@ -129,5 +129,125 @@ quizDataRaw = [
         "text": "IPヘッダーの書き換わるフィールドはどれか",
         "choices": ["送信元IPアドレス", "宛先IPアドレス", "プロトコル番号", "TTL"],
         "correctIndex": 3
+    },
+    {
+        "text": "TCPとはIP（Internet Protocol）を使用して、相手に「　　　　　」を確実に、効率よく届けるための仕組みを提供するプロトコル",
+        "choices": ["パケット", "ペイロード", "データ", "制御情報", "鍵", "プロトコル"],
+        "correctIndex": 2
+    },
+    {
+        "text": "TCPはデータを確実に届けるために、「　　　　　」し応答確認を行う",
+        "choices": ["コネクションレスを確立", "コネクションを確立", "安全な経路を確認", "最適な経路を確認"],
+        "correctIndex": 1
+    },
+    {
+        "text": "TCPはデータを効率よく届けるために、「　　　　　」を行う",
+        "choices": ["応答確認", "コネクションの確立", "経路選択", "通信制御"],
+        "correctIndex": 3
+    },
+    {
+        "text": "TCPはデータ部分が壊れていないかを確認するが、「　　　　　」",
+        "choices": ["一部のフィールドが壊れている場合再送要求を行う", "中身については一切関知しない", "アプリケーションデータの意味まで解析する", "データの暗号化方式を自動で修復する"],
+        "correctIndex": 1
+    },
+    {
+        "text": "TCPセグメントのTCPヘッダのデータ形式のフィールド名Reservedのサイズは「　　　　　」",
+        "choices": ["3", "4", "9", "16", "32"],
+        "correctIndex": 0
+    },
+    {
+        "text": "TCPセグメントのTCPヘッダのデータ形式のフィールド名Control Flagのサイズは「　　　　　」",
+        "choices": ["3", "4", "9", "16", "32"],
+        "correctIndex": 2
+    },
+    {
+        "text": "TCPセグメントのTCPヘッダのデータ形式のフィールド名Control Flagは制御ビットであるが左から1ビットごとに、「　　　　　」、CWR、ECE、URG、ACK、PSH、RST、SYN、FINとそれぞれ呼ばれている。",
+        "choices": ["NS", "CWR", "ECE", "URG", "ACK", "PSH", "RST", "SYN", "FIN"],
+        "correctIndex": 0
+    },
+    {
+        "text": "TCPセグメントのTCPヘッダのデータ形式のフィールド名Control Flagは制御ビットであるが左から1ビットごとに、NS、「　　　　　」、ECE、URG、ACK、PSH、RST、SYN、FINとそれぞれ呼ばれている。",
+        "choices": ["NS", "CWR", "ECE", "URG", "ACK", "PSH", "RST", "SYN", "FIN"],
+        "correctIndex": 1
+    },
+    {
+        "text": "TCPセグメントのTCPヘッダのデータ形式のフィールド名Control Flagは制御ビットであるが左から1ビットごとに、NS、CWR、「　　　　　」、URG、ACK、PSH、RST、SYN、FINとそれぞれ呼ばれている。",
+        "choices": ["NS", "CWR", "ECE", "URG", "ACK", "PSH", "RST", "SYN", "FIN"],
+        "correctIndex": 2
+    },
+    {
+        "text": "TCPセグメントのTCPヘッダのデータ形式のフィールド名OptionsはTCPによる通信の性能を向上させるために利用されるが、最大で「　　　　　」オクテットまでとなる",
+        "choices": ["4", "8", "16", "32", "40"],
+        "correctIndex": 4
+    },
+    {
+        "text": "TCPの３つの役割とは何か　「　　　　　」、通信制御、アプリケーションとの仲介である",
+        "choices": ["３ＷＡＹハンドシェイク", "接続と切断", "プロトコルの決定"],
+        "correctIndex": 1
+    },
+    {
+        "text": "コネクションとは各種の機器や回線、あるいはネットワークの中で通信を行う２つのアプリケーションが情報伝達のために占有して使用する仮想的な専用通信路のことであり、このコネクションを確立する手順をなんと呼ぶ",
+        "choices": ["1WAYハンドシェイク", "2WAYハンドシェイク", "3WAYハンドシェイク", "4WAYハンドシェイク", "5WAYハンドシェイク"],
+        "correctIndex": 2
+    },
+    {
+        "text": "TCPヘッダのControl Flagにおいて、URG（アージェント）は送信するTCPセグメント中に、「　　　　　」を示す",
+        "choices": ["一般的に処理すべきデータが含まれていること", "一般的に警告すべきデータが含まれていること", "緊急に処理すべきデータが含まれていること", "緊急に警告すべきデータが含まれていること"],
+        "correctIndex": 2
+    },
+    {
+        "text": "TCPヘッダのControl Flagにおいて、ACK（アック）は接続開始時の最初のTCPセグメント以外は、「　　　　　」になる",
+        "choices": ["すべてACKとSYNがオン", "すべてACKとSYNがオフ", "すべてACKがオン", "すべてACKがオフ", "すべてSYNがオン", "すべてACKとSYNがオフ"],
+        "correctIndex": 2
+    },
+    {
+        "text": "TCPヘッダのControl Flagにおいて、PSH（プッシュ）は「　　　　　」のTCP機能に対して、TCPセグメントを速やかにアプリケーションに受け渡すことを要求するために使う",
+        "choices": ["送信側が、受信側", "受信側が、送信側"],
+        "correctIndex": 0
+    },
+    {
+        "text": "TCPヘッダのControl Flagにおいて、PSH（プッシュ）は送信側が、受信側のTCP機能に対して、TCPセグメントを速やかに「　　　　　」に受け渡すことを要求するために使う",
+        "choices": ["プレゼンテーション", "コネクション", "アプリケーション", "クライアント"],
+        "correctIndex": 2
+    },
+    {
+        "text": "TCPヘッダのControl Flagにおいて、RST（リセット）はTCPの接続状態を「　　　　　」ために使う",
+        "choices": ["一時的に切る", "おかしなパケットを検出時に切る", "強制的に切る", "確認する前に切る"],
+        "correctIndex": 2
+    },
+    {
+        "text": "TCPヘッダのControl Flagにおいて、SYN（シン）は「　　　　　」するときに使う",
+        "choices": ["TCPコネクションを同期", "TCPコネクションを確立", "TCPコネクションを終了", "TCPコネクションを転送", "TCPコネクションを切断"],
+        "correctIndex": 1
+    },
+    {
+        "text": "TCPヘッダのControl Flagにおいて、FIN（フィン）は「　　　　　」するときに使う",
+        "choices": ["TCPコネクションを同期", "TCPコネクションを確立", "TCPコネクションを終了", "TCPコネクションを転送"],
+        "correctIndex": 2
+    },
+    {
+        "text": "TCPヘッダにおいて、通信確立後のデータ転送で使用するのはどれとどれか",
+        "choices": ["Sequence NumberとACKnowledgement Number", "Source PortとACKnowledgement Number", "Sequence NumberとControl flag", "Sequence NumberとChecksum"],
+        "correctIndex": 0
+    },
+    {
+        "text": "TCPでは、相手との通信に先立ち必ず「　　　　　」を作る",
+        "choices": ["物理的な通信路", "仮想的な通信路", "理想的な通信路"],
+        "correctIndex": 1
+    },
+    {
+        "text": "TCPコネクションの確立では送信側から受信側、受信側から送信側への２つの方向である「　　　　　」が可能な通信路が作られる",
+        "choices": ["半二重通信", "全二重通信", "単方向通信", "非同期通信", "マルチキャスト通信"],
+        "correctIndex": 1
+    },
+    {
+        "text": "TCPの通信制御において３つの信頼性を高める工夫がある。含まれていないのはどれか",
+        "choices": ["ウィンドウ制御", "再送制御", "輻輳（ふくそう）制御", "確認応答制御"],
+        "correctIndex": 3
+    },
+    {
+        "text": "TCPの通信制御（ウィンドウ制御）とは、相手からの「　　　」を待たずにTCPセグメントを続けて送れるようにし、信頼性を確保したままデータ転送のスループットを高める方法",
+        "choices": ["送信要求", "受信要求", "確認応答", "接続終了通知", "再送要求"],
+        "correctIndex": 2
     }
 ];
