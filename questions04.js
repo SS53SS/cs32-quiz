@@ -97,7 +97,7 @@ quizDataRaw = [
     },
     {
         "text": "IPは、自身がつながっている回線のMTUを「　　　　　」に問い合わせ、自分とつながっている回線が許す限り大きなIPパケットを作って送る。",
-        "choices": ["TTL", "Flags", "NDA", "NIC", "ITU", "KCC"],
+        "choices": ["TTL", "Flags", "NDA", "NIC", "ITU.KCC"],
         "correctIndex": 3
     },
     {
@@ -294,5 +294,90 @@ quizDataRaw = [
         "text": "UDPは即時性を優先するため、「　　　　　」を保証する機能は持たない",
         "choices": ["機密性や完全性", "正確性や効率性", "可用性や保守性", "拡張性や柔軟性", "認証や暗号化"],
         "correctIndex": 1
+    },
+    {
+        "text": "TCPのデータはセグメントと呼ばれたが、UDPとは「　　　　　」という",
+        "choices": ["セメント", "ペイロード", "アプリケーション", "データグラム"],
+        "correctIndex": 3
+    },
+    {
+        "text": "UDPデータグラムのデータ形式において、ヘッダ名とサイズの組み合わせで間違っているのはどれか",
+        "choices": ["送信元ポート番号：16", "あて先ポート番号：16", "UDPデータグラムの大きさ：8", "チェックサム：16"],
+        "correctIndex": 2
+    },
+    {
+        "text": "UDPの特徴はどれか",
+        "choices": ["完全性の担保などは行わないコネクションレス型のプロトコル", "完全性の担保などは行わないコネクション型のプロトコル", "機密性の担保などは行わないコネクションレス型のプロトコル", "信頼性の担保などは行わないコネクションレス型のプロトコル", "信頼性の担保などは行わないコネクション型のプロトコル"],
+        "correctIndex": 3
+    },
+    {
+        "text": "UDPの特徴で誤っているのはどれか",
+        "choices": ["TCPより高速処理", "TCPより通信効率が低い", "自由度が高い", "1対多の通信が可能"],
+        "correctIndex": 1
+    },
+    {
+        "text": "UDPの特徴で誤っているのはどれか",
+        "choices": ["TCPより高速処理", "TCPより通信効率が高い", "自由度が低い", "1対多の通信が可能"],
+        "correctIndex": 2
+    },
+    {
+        "text": "UDPの用途として誤っているのはどれか",
+        "choices": ["複数の相手へのメッセージを一斉同報するアプリケーション", "ストリーミング配信", "ドメイン名からIPアドレスを調べるDNS", "YouTube"],
+        "correctIndex": 3
+    },
+    {
+        "text": "ICMPプロトコルを使用しているコマンドはどれか",
+        "choices": ["tracert", "nslookup", "telnet", "ipconfig"],
+        "correctIndex": 0
+    },
+    {
+        "text": "ICMPの用途で誤っているのはどれか",
+        "choices": ["エラーの報告", "ネットワークのパフォーマンスを評価する診断ツール", "Webページの暗号化通信"],
+        "correctIndex": 2
+    },
+    {
+        "text": "ICMPメッセージフォーマットでTypeはメッセージタイプであるが何種類あるか",
+        "choices": ["3", "6", "9", "15", "32"],
+        "correctIndex": 3
+    },
+    {
+        "text": "代表的なICMPメッセージであて先ネットワークに到達できない場合等のタイプの番号はどれか",
+        "choices": ["0", "3", "5", "8", "11"],
+        "correctIndex": 1
+    },
+    {
+        "text": "代表的なICMPメッセージで「転送中に生存時間が0になった（TTL値が超過した）」のタイプの番号はどれか",
+        "choices": ["0", "3", "5", "8", "11"],
+        "correctIndex": 4
+    },
+    {
+        "text": "ICMPメッセージのエラー通知は主にルータに実装される「　　　　　」から通知される",
+        "choices": ["ARP", "ICMP", "IP", "TCP", "UDP"],
+        "correctIndex": 1
+    },
+    {
+        "text": "ICMPメッセージの問い合わせで通信状況を確認するときに使用するEcho Requestに対応するものはどれか",
+        "choices": ["Echo on", "Echo off", "Echo Reply", "Echo decode"],
+        "correctIndex": 2
+    },
+    {
+        "text": "ICMPメッセージのエラー通知において「送信元に対して経路変更を促す目的で使用」はどれか",
+        "choices": ["Destination Unreachable", "Redirect", "Time Exceeded"],
+        "correctIndex": 1
+    },
+    {
+        "text": "ICMPメッセージのエラー通知において「経路情報の不足等の理由によりIPパケットを送信・中継出来なかった場合やIPパケットを受信できなかった場合にその理由を送信元に通知」はどれか",
+        "choices": ["Destination Unreachable", "Redirect", "Time Exceeded"],
+        "correctIndex": 0
+    },
+    {
+        "text": "ICMPメッセージのエラー通知において「中継すべきIPパケットのTTLが0になった場合やフラグメントの組み立てに失敗した場合に、その理由を送信元に通知」はどれか",
+        "choices": ["Destination Unreachable", "Redirect", "Time Exceeded"],
+        "correctIndex": 2
+    },
+    {
+        "text": "Pingコマンドでネットワークのコネクション状態を確認する時のICMPメッセージタイプとしてRequest = 「　　　　　」,Reply = 0が使用される。",
+        "choices": ["0", "1", "3", "5", "8"],
+        "correctIndex": 4
     }
 ];
