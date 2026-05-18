@@ -128,6 +128,36 @@
         .weak-actions button { flex: 1; margin: 0; padding: 10px; font-size: 0.9em; }
         #weak-start-btn { background-color: #ffc107; color: #333; }
         #weak-clear-btn { background-color: #6c757d; }
+        .progress-box {
+            margin: 15px 0 20px;
+            padding: 12px;
+            background: #eef7ff;
+            border: 1px solid #9fd0ff;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        .progress-box strong { color: #0056a3; }
+        .progress-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .progress-cell {
+            background: #fff;
+            border: 1px solid #d8ecff;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .study-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .study-actions button { margin: 0; padding: 10px; font-size: 0.9em; }
+        .orange-btn { background-color: #fd7e14 !important; }
+        .purple-btn { background-color: #6f42c1 !important; }
+        .teal-btn { background-color: #20c997 !important; color: #222; }
+        .gray-btn { background-color: #6c757d !important; }
 
         /* チェックボックス用のスタイル */
         .shuffle-option {
@@ -181,6 +211,7 @@
         <h2>出題数を選択</h2>
         <p id="total-info" style="font-size: 1em; margin: 20px 0; color: #666;"></p>
 
+        <div id="progress-info" class="progress-box" style="display:none;"></div>
         <div id="weak-info" class="weak-box" style="display:none;"></div>
         
         <div class="shuffle-option">
@@ -226,6 +257,7 @@
         let currentFileName = "";
         let weakMode = false;
         const WEAK_STORAGE_KEY = "quizWeakQuestionsV1";
+        const PROGRESS_STORAGE_KEY = "quizProgressV1";
 
         function getQuestionKey(q) {
             return `${currentFileName}::${q.text}`;
@@ -241,6 +273,149 @@
 
         function saveWeakStore(store) {
             localStorage.setItem(WEAK_STORAGE_KEY, JSON.stringify(store));
+        }
+
+
+
+        function loadProgressStore() {
+            try {
+                return JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveProgressStore(store) {
+            localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(store));
+        }
+
+        function recordAnswer(q, isCorrect) {
+            const store = loadProgressStore();
+            const key = getQuestionKey(q);
+            const correctText = q.choices[q.correctIndex];
+            const current = store[key] || {
+                fileName: currentFileName,
+                text: q.text,
+                correctText: correctText,
+                attemptCount: 0,
+                correctCount: 0,
+                missCount: 0,
+                consecutiveMisses: 0,
+                lastAnsweredAt: null,
+                mastered: false
+            };
+            current.fileName = currentFileName;
+            current.text = q.text;
+            current.correctText = correctText;
+            current.attemptCount = (current.attemptCount || 0) + 1;
+            current.lastAnsweredAt = new Date().toISOString();
+            if (isCorrect) {
+                current.correctCount = (current.correctCount || 0) + 1;
+                current.consecutiveMisses = 0;
+                current.mastered = true;
+            } else {
+                current.missCount = (current.missCount || 0) + 1;
+                current.consecutiveMisses = (current.consecutiveMisses || 0) + 1;
+            }
+            store[key] = current;
+            saveProgressStore(store);
+        }
+
+        function getProgressSummaryForCurrentFile() {
+            const store = loadProgressStore();
+            const total = quizDataRaw.length;
+            let attempted = 0;
+            let correctEver = 0;
+            let twoConsecutiveWrong = 0;
+            quizDataRaw.forEach(q => {
+                const item = store[getQuestionKey(q)];
+                if (!item) return;
+                if ((item.attemptCount || 0) > 0) attempted++;
+                if ((item.correctCount || 0) > 0 || item.mastered) correctEver++;
+                if ((item.consecutiveMisses || 0) >= 2) twoConsecutiveWrong++;
+            });
+            return {
+                total,
+                attempted,
+                unattempted: total - attempted,
+                correctEver,
+                notCorrectYet: total - correctEver,
+                twoConsecutiveWrong
+            };
+        }
+
+        function getUnattemptedQuestionsForCurrentFile() {
+            const store = loadProgressStore();
+            return quizDataRaw.filter(q => !store[getQuestionKey(q)] || (store[getQuestionKey(q)].attemptCount || 0) === 0);
+        }
+
+        function getNotCorrectYetQuestionsForCurrentFile() {
+            const store = loadProgressStore();
+            return quizDataRaw.filter(q => {
+                const item = store[getQuestionKey(q)];
+                return !item || ((item.correctCount || 0) === 0 && !item.mastered);
+            });
+        }
+
+        function getTwoConsecutiveWrongQuestionsForCurrentFile() {
+            const store = loadProgressStore();
+            return quizDataRaw.filter(q => (store[getQuestionKey(q)]?.consecutiveMisses || 0) >= 2);
+        }
+
+        function startFromList(sourceData, messageIfEmpty) {
+            if (sourceData.length === 0) {
+                alert(messageIfEmpty);
+                updateLearningInfo();
+                return;
+            }
+            weakMode = false;
+            const shuffled = [...sourceData].sort(() => Math.random() - 0.5);
+            beginQuiz(prepareQuizData(shuffled));
+        }
+
+        function startUnattemptedQuiz() {
+            startFromList(getUnattemptedQuestionsForCurrentFile(), "未挑戦の問題はありません。");
+        }
+
+        function startNotCorrectYetQuiz() {
+            startFromList(getNotCorrectYetQuestionsForCurrentFile(), "未正解の問題はありません。全問どこかで正解済みです。");
+        }
+
+        function startTwoConsecutiveWrongQuiz() {
+            startFromList(getTwoConsecutiveWrongQuestionsForCurrentFile(), "2連続不正解の問題はありません。");
+        }
+
+        function clearProgressQuestions() {
+            if (!confirm("この問題ファイルの学習履歴（挑戦済み・正解済み・連続不正解）を削除しますか？")) return;
+            const store = loadProgressStore();
+            Object.keys(store).forEach(key => {
+                if (key.startsWith(`${currentFileName}::`)) delete store[key];
+            });
+            saveProgressStore(store);
+            updateLearningInfo();
+            alert("学習履歴を削除しました。");
+        }
+
+        function updateLearningInfo() {
+            const progressInfo = document.getElementById('progress-info');
+            const s = getProgressSummaryForCurrentFile();
+            progressInfo.style.display = "block";
+            progressInfo.innerHTML = `
+                <strong>学習状況</strong>
+                <div class="progress-grid">
+                    <div class="progress-cell">挑戦済み<br>${s.attempted}/${s.total}</div>
+                    <div class="progress-cell">未挑戦<br>${s.unattempted}</div>
+                    <div class="progress-cell">正解済み<br>${s.correctEver}</div>
+                    <div class="progress-cell">2連続不正解<br>${s.twoConsecutiveWrong}</div>
+                </div>
+                <div class="study-actions">
+                    <button class="teal-btn" onclick="startUnattemptedQuiz()">未挑戦だけ出題</button>
+                    <button class="orange-btn" onclick="startNotCorrectYetQuiz()">正解済みを除外して出題</button>
+                    <button class="purple-btn" onclick="startTwoConsecutiveWrongQuiz()">2連続不正解だけ出題</button>
+                    <button class="gray-btn" onclick="clearProgressQuestions()">学習履歴を削除</button>
+                </div>
+            `;
+            updateWeakInfo();
         }
 
         function recordMistake(q) {
@@ -334,7 +509,7 @@
                 document.getElementById('file-select-screen').style.display = "none";
                 document.getElementById('start-screen').style.display = "block";
                 document.getElementById('total-info').textContent = `全${quizDataRaw.length}問から出題数を選択`;
-                updateWeakInfo();
+                updateLearningInfo();
             };
             script.onerror = () => alert("ファイルの読み込みに失敗しました。");
             document.body.appendChild(script);
@@ -361,7 +536,7 @@
             const weakQuestions = getWeakQuestionsForCurrentFile();
             if (weakQuestions.length === 0) {
                 alert("保存されている苦手問題はありません。");
-                updateWeakInfo();
+                updateLearningInfo();
                 return;
             }
             weakMode = true;
@@ -387,7 +562,7 @@
                 if (key.startsWith(`${currentFileName}::`)) delete store[key];
             });
             saveWeakStore(store);
-            updateWeakInfo();
+            updateLearningInfo();
             alert("苦手履歴を削除しました。");
         }
 
@@ -447,7 +622,7 @@
                     <h2>結果発表</h2>
                     <p style="font-size: 1.4em;">正解数: <strong>${correctCount}/${quizData.length}</strong></p>
                     <p style="font-size: 1.1em; color: #666;">正答率: <strong>${accuracy}%</strong></p>
-                    <p style="font-size: 0.9em; color: #666;">不正解だった問題は苦手問題として自動保存されました。</p>
+                    <p style="font-size: 0.9em; color: #666;">回答履歴を保存しました。不正解は苦手問題にも自動保存されます。</p>
                     ${reviewHtml}
                     ${retryBtnHtml}
                     <button onclick='backToTop()'>トップに戻る</button>
@@ -479,7 +654,9 @@
             const q = quizData[currentQuestionIndex];
             const resultDiv = document.getElementById('result');
             
-            if (selectedIndex === q.correctIndex) {
+            const isCorrect = selectedIndex === q.correctIndex;
+            recordAnswer(q, isCorrect);
+            if (isCorrect) {
                 resultDiv.textContent = "⭕ 正解です！";
                 resultDiv.style.color = "green";
                 correctCount++;
