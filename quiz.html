@@ -114,6 +114,20 @@
         }
         .review-item:last-child { border-bottom: none; }
         .correct-label { color: #d9534f; font-weight: bold; }
+        .weak-box {
+            margin: 15px 0 20px;
+            padding: 12px;
+            background: #fff8e1;
+            border: 1px solid #ffd966;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        .weak-box strong { color: #a66a00; }
+        .weak-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .weak-actions button { flex: 1; margin: 0; padding: 10px; font-size: 0.9em; }
+        #weak-start-btn { background-color: #ffc107; color: #333; }
+        #weak-clear-btn { background-color: #6c757d; }
 
         /* チェックボックス用のスタイル */
         .shuffle-option {
@@ -166,6 +180,8 @@
     <div id="start-screen" class="screen" style="display: none;">
         <h2>出題数を選択</h2>
         <p id="total-info" style="font-size: 1em; margin: 20px 0; color: #666;"></p>
+
+        <div id="weak-info" class="weak-box" style="display:none;"></div>
         
         <div class="shuffle-option">
             <label>
@@ -206,7 +222,81 @@
         let quizData = [];
         let currentQuestionIndex = 0;
         let correctCount = 0;
-        let missedQuestions = []; 
+        let missedQuestions = [];
+        let currentFileName = "";
+        let weakMode = false;
+        const WEAK_STORAGE_KEY = "quizWeakQuestionsV1";
+
+        function getQuestionKey(q) {
+            return `${currentFileName}::${q.text}`;
+        }
+
+        function loadWeakStore() {
+            try {
+                return JSON.parse(localStorage.getItem(WEAK_STORAGE_KEY)) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveWeakStore(store) {
+            localStorage.setItem(WEAK_STORAGE_KEY, JSON.stringify(store));
+        }
+
+        function recordMistake(q) {
+            const store = loadWeakStore();
+            const key = getQuestionKey(q);
+            const correctText = q.choices[q.correctIndex];
+            store[key] = {
+                fileName: currentFileName,
+                text: q.text,
+                correctText: correctText,
+                missCount: (store[key]?.missCount || 0) + 1,
+                lastMissedAt: new Date().toISOString()
+            };
+            saveWeakStore(store);
+        }
+
+        function getWeakQuestionsForCurrentFile() {
+            const store = loadWeakStore();
+            return quizDataRaw.filter(q => store[getQuestionKey(q)]);
+        }
+
+        function updateWeakInfo() {
+            const weakInfo = document.getElementById('weak-info');
+            const weakCount = getWeakQuestionsForCurrentFile().length;
+            if (weakCount === 0) {
+                weakInfo.style.display = "none";
+                weakInfo.innerHTML = "";
+                return;
+            }
+            weakInfo.style.display = "block";
+            weakInfo.innerHTML = `
+                <strong>苦手問題:</strong> ${weakCount}問 保存されています<br>
+                <span style="color:#666;">前回までに間違えた問題だけを出題できます。</span>
+                <div class="weak-actions">
+                    <button id="weak-start-btn" onclick="startWeakQuiz()">苦手問題だけ出題</button>
+                    <button id="weak-clear-btn" onclick="clearWeakQuestions()">苦手履歴を削除</button>
+                </div>
+            `;
+        }
+
+        function prepareQuizData(sourceData) {
+            let selectedData = [...sourceData];
+            if (document.getElementById('shuffle-choices').checked) {
+                selectedData = selectedData.map(q => {
+                    const originalCorrectText = q.choices[q.correctIndex];
+                    const shuffledChoices = [...q.choices].sort(() => Math.random() - 0.5);
+                    const newCorrectIndex = shuffledChoices.indexOf(originalCorrectText);
+                    return {
+                        ...q,
+                        choices: shuffledChoices,
+                        correctIndex: newCorrectIndex
+                    };
+                });
+            }
+            return selectedData;
+        }
 
         function checkPassword() {
             const input = document.getElementById('pw-input').value.trim();
@@ -229,6 +319,7 @@
         };
 
         function loadFile(fileName) {
+            currentFileName = fileName;
             const oldScript = document.getElementById('quiz-script');
             if (oldScript) oldScript.remove();
             quizDataRaw = [];
@@ -243,6 +334,7 @@
                 document.getElementById('file-select-screen').style.display = "none";
                 document.getElementById('start-screen').style.display = "block";
                 document.getElementById('total-info').textContent = `全${quizDataRaw.length}問から出題数を選択`;
+                updateWeakInfo();
             };
             script.onerror = () => alert("ファイルの読み込みに失敗しました。");
             document.body.appendChild(script);
@@ -259,31 +351,44 @@
         }
 
         function startQuiz(questionCount) {
+            weakMode = false;
             const shuffled = [...quizDataRaw].sort(() => Math.random() - 0.5);
-            let selectedData = questionCount ? shuffled.slice(0, questionCount) : shuffled;
+            const selectedData = questionCount ? shuffled.slice(0, questionCount) : shuffled;
+            beginQuiz(prepareQuizData(selectedData));
+        }
 
-            // 選択肢のシャッフル処理
-            if (document.getElementById('shuffle-choices').checked) {
-                selectedData = selectedData.map(q => {
-                    const originalCorrectText = q.choices[q.correctIndex];
-                    const shuffledChoices = [...q.choices].sort(() => Math.random() - 0.5);
-                    const newCorrectIndex = shuffledChoices.indexOf(originalCorrectText);
-                    return {
-                        ...q,
-                        choices: shuffledChoices,
-                        correctIndex: newCorrectIndex
-                    };
-                });
+        function startWeakQuiz() {
+            const weakQuestions = getWeakQuestionsForCurrentFile();
+            if (weakQuestions.length === 0) {
+                alert("保存されている苦手問題はありません。");
+                updateWeakInfo();
+                return;
             }
+            weakMode = true;
+            const shuffled = [...weakQuestions].sort(() => Math.random() - 0.5);
+            beginQuiz(prepareQuizData(shuffled));
+        }
 
-            quizData = selectedData;
+        function beginQuiz(data) {
+            quizData = data;
             document.getElementById('start-screen').style.display = "none";
             document.getElementById('quiz-container').style.display = "block";
             document.getElementById('progress').style.display = "block";
             currentQuestionIndex = 0;
             correctCount = 0;
-            missedQuestions = []; 
+            missedQuestions = [];
             showQuestion();
+        }
+
+        function clearWeakQuestions() {
+            if (!confirm("この問題ファイルの苦手履歴を削除しますか？")) return;
+            const store = loadWeakStore();
+            Object.keys(store).forEach(key => {
+                if (key.startsWith(`${currentFileName}::`)) delete store[key];
+            });
+            saveWeakStore(store);
+            updateWeakInfo();
+            alert("苦手履歴を削除しました。");
         }
 
         function updateProgress() {
@@ -342,6 +447,7 @@
                     <h2>結果発表</h2>
                     <p style="font-size: 1.4em;">正解数: <strong>${correctCount}/${quizData.length}</strong></p>
                     <p style="font-size: 1.1em; color: #666;">正答率: <strong>${accuracy}%</strong></p>
+                    <p style="font-size: 0.9em; color: #666;">不正解だった問題は苦手問題として自動保存されました。</p>
                     ${reviewHtml}
                     ${retryBtnHtml}
                     <button onclick='backToTop()'>トップに戻る</button>
@@ -381,6 +487,7 @@
                 resultDiv.textContent = `❌ 不正解...`;
                 resultDiv.style.color = "red";
                 missedQuestions.push(q);
+                recordMistake(q);
             }
             
             updateStatsDisplay(true); 
