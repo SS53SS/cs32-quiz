@@ -2,4 +2,9 @@
 0の部分には半角数字で３行目にあたるものを入れて。
 
 
+
+Basic認証でアクセス可能ユーザーの削除を行いたい。正しいコマンドはどれか
+htpasswd -D /etc/httpd/.htpasswd user1, htpasswd -c /etc/httpd/.htpasswd user1 password1, htpasswd -c /etc/httpd/.htpasswd user1 -p password1, htpasswd -c /etc/httpd/.htpasswd user1 -b password1, htpasswd -c /etc/httpd/.htpasswd user1 -s password1
+0
+
 選択肢を増やして
